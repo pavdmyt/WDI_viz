@@ -3,8 +3,7 @@ Provides a set of tools to parse and plot CSV data from worldbank.org
 
 Usage Example
 -------------
-
-# parse downloaded CSV
+# parse downloaded CSV:
 >>> data = parse('ukr_Country_en_csv_v2.csv')
 
 # get table from row 42 in CSV file:
@@ -27,7 +26,7 @@ import matplotlib.pyplot as plt
 
 
 class TableDict(dict):
-    """Dict subclass for simplified access to parsed data."""
+    """Dict subclass for simplified access to the parsed data."""
 
     def get_country_name(self):
         return self['Country Name']
@@ -42,7 +41,10 @@ class TableDict(dict):
         return self['Indicator Code']
 
     def get_plot_data(self):
-        """Fill this."""
+        """Fetch years list with corresponding values list.
+
+        :return: ``tuple`` years list and values list.
+        """
         # get years:
         year_lst = []
         for key in self.keys():
@@ -59,7 +61,15 @@ class TableDict(dict):
 
 
 def parse(file_name, delimiter=','):
-    """Fill this."""
+    """Parses CSV file.
+
+    Each TableDict stores table headers as ``table.keys()``
+    and appropriate values as ``table.values()``
+
+    :param file_name: ``str`` CSV file to parse.
+    :param delimiter: ``str`` CSV file delimiter.
+    :return: ``list``
+    """
     with open(file_name, 'r') as f:
         csv_data = csv.reader(f, delimiter=delimiter)
         parsed_data = []
@@ -68,7 +78,7 @@ def parse(file_name, delimiter=','):
         for i in range(3):
             fields = next(csv_data)
 
-        # fill parsed_data with tables:
+        # fill parsed_data with TableDict objects:
         for row in csv_data:
             parsed_data.append(TableDict(zip(fields, row)))
 
@@ -76,10 +86,22 @@ def parse(file_name, delimiter=','):
 
 
 def get_table(parsed_data, index):
+    """Fetch a table corresponding to specified row # in CSV file.
+
+    :param parsed_data: ``list`` of ``TableDict`` objects.
+    :param index: ``int`` row number in CSV file.
+    :return: ``TableDict``
+    """
     return parsed_data[index - 4]
 
 
 def plot_save(table, plot_type):
+    """Wrapper around plt.savefig().
+
+    :param table: ``TableDict`` data to plot.
+    :param plot_type: ``str`` specifies in a filename whether it's
+        graph or a bar plot.
+    """
     country_code = table.get_country_code() + '_'
     indicator = table.get_indicator_code()
 
@@ -89,7 +111,13 @@ def plot_save(table, plot_type):
 
 
 def plot_graph(table, line_format='b-', save=False):
-    """Fill this."""
+    """Shows/saves graph.
+
+    :param table: ``TableDict`` data to plot.
+    :param line_format: ``str`` line style and color abbreviation
+        same as in ``plt.plot()``
+    :param save: ``bool`` saves graph as PNG if ``save=True``
+    """
     years, values = table.get_plot_data()
     plt.plot(years, values, line_format)
 
@@ -106,7 +134,15 @@ def plot_graph(table, line_format='b-', save=False):
 
 
 def plot_bar(table, color='b', width=0.5, save=False):
-    """Fill this."""
+    """Shows/saves bar plot.
+
+    :param table: ``TableDict`` data to plot.
+    :param color: ``str`` the colors of the bar faces
+        same as in ``plt.bar()``
+    :param width: ``float`` the width(s) of the bars
+        same as in ``plt.bar()``
+    :param save: ``bool`` saves bar plot as PNG if ``save=True``
+    """
     years, values = table.get_plot_data()
 
     # Set where the labels hit the x-axis:
