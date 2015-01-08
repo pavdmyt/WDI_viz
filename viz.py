@@ -1,13 +1,24 @@
 """
 Provides a set of tools to parse and plot CSV data from worldbank.org
 
-Usage Example:
->>> data = parse('ukr_Country_en_csv_v2.csv')  # parse downloaded CSV
+Usage Example
+-------------
 
-# plot table from row 42 in CSV file:
+# parse downloaded CSV
+>>> data = parse('ukr_Country_en_csv_v2.csv')
 
+# get table from row 42 in CSV file:
 >>> table = get_table(data, 42)
+
+# visualize graph:
 >>> plot_graph(table)
+
+# visualize bar graph:
+>>> plot_bar(table)
+
+# save graph and bar graph into PNG file:
+>>> plot_graph(table, save=True)
+>>> plot_bar(table, save=True)
 """
 
 
@@ -68,14 +79,51 @@ def get_table(parsed_data, index):
     return parsed_data[index - 4]
 
 
-def plot_graph(table, line_format='b-'):
+def plot_save(table, plot_type):
+    country_code = table.get_country_code() + '_'
+    indicator = table.get_indicator_code()
+
+    # Save and close figure:
+    plt.savefig(country_code + indicator + plot_type + '.png')
+    plt.clf()
+
+
+def plot_graph(table, line_format='b-', save=False):
     """Fill this."""
     years, values = table.get_plot_data()
     plt.plot(years, values, line_format)
 
-    # plot appearance:
+    # Set appearance:
     plt.xlabel('years')
     plt.ylabel('values')
     plt.title(table.get_indicator_name())
     plt.grid(True)
-    plt.show()
+
+    if save:
+        plot_save(table, '_graph')
+    else:
+        plt.show()
+
+
+def plot_bar(table, color='b', width=0.5, save=False):
+    """Fill this."""
+    years, values = table.get_plot_data()
+
+    # Set where the labels hit the x-axis:
+    xloc = [_ + 0.5 for _ in xrange(len(years))]
+
+    # Make a bar plot:
+    plt.bar(xloc, values, color=color, width=width)
+
+    # Tick labels location to x-axis:
+    plt.xticks([_ + width / 2 for _ in xloc], years, rotation=90)
+
+    # Set appearance:
+    plt.ylabel('values')
+    plt.title(table.get_indicator_name())
+    plt.grid(True)
+
+    if save:
+        plot_save(table, '_barplot')
+    else:
+        plt.show()
